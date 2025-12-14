@@ -16,11 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from payment_manager.api import check_connection, initiate_payment, payment_id
+from payment_manager.api import check_connection, create_order, initiate_payment, payment_id
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('payment_manager/check_connection/',check_connection),
     path('payment_manager/initiate_payment/',initiate_payment),
     path('payment_manager/payment_id/',payment_id),
+    path('payment_manager/create_order/<str:plan_name>/',create_order),
 ]

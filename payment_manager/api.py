@@ -89,3 +89,12 @@ def payment_id(request):
     except Exception as e:
         print('api call error')
         print(e)
+
+@api_view(['GET'])
+def create_order(request,plan_name):
+    try:
+        source_website=request.headers.get("Origin")
+        return HttpResponse(f'payment for {plan_name} plan from {source_website} source')
+    except Exception as e:
+        print(e)
+        return HttpResponse('errror ocurred from server')

@@ -80,22 +80,22 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "payment_manager",      # your local DB name
-        "USER": "postgres",          # your PostgreSQL username
-        "PASSWORD": "Sanket@2146",          # your PostgreSQL password
-        "HOST": "localhost",         # or 127.0.0.1
-        "PORT": "5432",
-    }
-}
-
 # DATABASES = {
-#     "default": dj_database_url.config(
-#         default=os.environ.get("DATABASE_URL")
-#     )
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "payment_manager",      # your local DB name
+#         "USER": "postgres",          # your PostgreSQL username
+#         "PASSWORD": "Sanket@2146",          # your PostgreSQL password
+#         "HOST": "localhost",         # or 127.0.0.1
+#         "PORT": "5432",
+#     }
 # }
+
+DATABASES = {
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
+    )
+}
 
 
 # Password validation

@@ -20,7 +20,8 @@ def initiate_payment(request):
         # source_website=data['source_website']
         cust_email=data['customer_email']
         plan=data['plan_name']
-        obj=PlanDetails.objects.filter(plan_name=plan).first()
+        obj = PlanDetails.objects.filter(source_website__icontains=source_website,plan_name=plan).first()
+        # obj=PlanDetails.objects.filter(plan_name=plan).first()
         if obj:
             print(obj.id)
             order_id=generate_order_id(plan=obj,cust_email=cust_email,amount=obj.amount)

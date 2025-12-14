@@ -17,10 +17,20 @@ def initiate_payment(request):
     data=request.data
     try:
         source_website=request.headers.get("Origin")
+        if(source_website):
+            print(f'source web : {source_website}')
+        else:
+            print('source website not found')
+    
         # source_website=data['source_website']
         cust_email=data['customer_email']
         plan=data['plan_name']
-        obj = PlanDetails.objects.filter(source_website__icontains=source_website,plan_name=plan).first()
+        objs = PlanDetails.objects.filter(plan_name=plan)
+        obj=None
+        for p in objs:
+            if p.source_website.lower() in source_website.lower():
+                obj = p
+                break
         # obj=PlanDetails.objects.filter(plan_name=plan).first()
         if obj:
             print(obj.id)

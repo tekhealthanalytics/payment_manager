@@ -23,41 +23,46 @@ def initiate_payment(request):
             print('source website not found')
     
         # source_website=data['source_website']
-        cust_email=data['customer_email']
-        plan=data['plan_name']
-        objs = PlanDetails.objects.filter(plan_name=plan)
-        obj=None
-        for p in objs:
-            if p.source_website.lower() in source_website.lower():
-                obj = p
-                break
-        # obj=PlanDetails.objects.filter(plan_name=plan).first()
+        cust_email=data['cust_email']
+        source_website_plan=data['source_website_plan']
+        cust_name=data['cust_name']
+        mobile_number=data['mobile_number']
+        obj = PlanDetails.objects.filter(source_website_plan=source_website_plan).first()
+
         if obj:
             print(obj.id)
-            order_id=generate_order_id(plan=obj,cust_email=cust_email,amount=obj.amount)
+            order_id=generate_order_id(plan=obj,cust_email=cust_email,amount=obj.amount,cust_name=cust_name,mobile_number=mobile_number)
             if order_id:
                 return TemplateResponse(
                      request,
                         "select_payment.html",
-                         {"order_id": order_id,"amount":obj.amount}
+                         {"order_id": order_id,
+                          "amount":obj.amount,
+                          "cust_email":cust_email,
+                          "cust_name":cust_name,
+                          "mobile_number":mobile_number
+                          }
                     )
         else:
             return HttpResponse("plan not found")
-    except:
+    except Exception as e:
+        print(e)
         return HttpResponse("incomplete information")
 
     
 
 
 
-def generate_order_id(plan,cust_email,amount):
+def generate_order_id(plan,cust_email,amount,cust_name,mobile_number):
     try:
         data = { "amount": amount*100, "currency": "INR", "receipt": "order_rcptid_11" }
         payment = client.order.create(data) # Amount is in currency subunits.
         order=OrderIdDetails.objects.create(
             order_id=payment['id'],
             plan=plan,
-            cust_email=cust_email
+            cust_email=cust_email,
+            cust_name=cust_name,
+            mobile_number=mobile_number
         )
         print(order)
         return payment['id']
@@ -85,16 +90,30 @@ def payment_id(request):
 
         print(payment)
 
-        return HttpResponse('payment successful')
+        # return HttpResponse('payment successful')
+        return JsonResponse({
+        "status": "success",
+        "message": "Payment successful"
+    })
     except Exception as e:
         print('api call error')
         print(e)
 
 @api_view(['GET'])
-def create_order(request,plan_name):
+def create_order(request, source_website_plan):
     try:
-        source_website=request.headers.get("Origin")
-        return HttpResponse(f'payment for {plan_name} plan from {source_website} source')
+        obj = PlanDetails.objects.filter(source_website_plan=source_website_plan).first()
+
+        if obj:
+            return TemplateResponse(
+                         request,
+                            "payment_details.html",
+                             {"plan_name": obj.plan_name,"amount":obj.amount,"source_website_plan":source_website_plan}
+                        )
+        else:
+            return HttpResponse('Currently plan not available')
+
+
     except Exception as e:
         print(e)
         return HttpResponse('errror ocurred from server')

@@ -1,35 +1,105 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Razorpay Payment</title>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+
+        .payment-box {
+            width: 320px;
+            padding: 25px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+
+            /* FLOAT EFFECT */
+            margin: 120px auto;
+            /* centers horizontally */
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #rzp-button {
+            width: 100%;
+            padding: 12px;
+            background: #528FF0;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #rzp-button:hover {
+            background: #3f7ae0;
+        }
+    </style>
 </head>
+
 <body>
 
-    <h2>Make Payment</h2>
+    <div class="payment-box">
+        <h2>Make Payment</h2>
 
-    <button id="rzp-button" style="padding:10px 20px; background:#528FF0; color:white; border:none; border-radius:5px; cursor:pointer;">
-        Pay with Razorpay {{amount}}
-    </button>
+        <button id="rzp-button">
+            Pay with Razorpay {{amount}}
+        </button>
+    </div>
 
     <script>
-        document.getElementById('rzp-button').onclick = function(e){
+        document.getElementById('rzp-button').onclick = function (e) {
             var options = {
                 "key": "rzp_test_RmS9j2gPUxb05Y",
                 "order_id": "{{order_id}}",
                 "amount": "{{amount}}", // = Rs 500.00
                 "currency": "INR",
-                "name": "Test Payment",
+                "name": "TekHealthPaymentManager",
                 "description": "Sample Razorpay Pay Button",
                 "image": "",
-                "callback_url": "https://payment-manager-tmai.onrender.com/payment_manager/payment_id/",
-                // "handler": function (response){
-                //     alert("Payment ID: " + response.razorpay_payment_id);
-                // },
+                // "callback_url": "https://payment-manager-tmai.onrender.com/payment_manager/payment_id/",
+                // "callback_url": "http://127.0.0.1:8000/payment_manager/payment_id/",
+                "handler":  (response)=> {
+
+                    // Call your Django API
+                    fetch("https://payment-manager-tmai.onrender.com/payment_manager/payment_id/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature
+                        })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            alert("✅ Payment Successful!");
+                            console.log(data);
+                            window.history.back();
+                        })
+                        .catch(err => {
+                            alert("❌ Payment verification failed");
+                            console.error(err);
+                        });
+                        
+                },
+
+
                 "prefill": {
-                    "name": "",
-                    "email": "",
-                    "contact": ""
+                    "name": "{{cust_name}}",
+                    "email": "{{cust_email}}",
+                    "contact": "{{mobile_number}}"
                 },
                 "theme": {
                     "color": "#528FF0"
@@ -42,4 +112,5 @@
     </script>
 
 </body>
+
 </html>

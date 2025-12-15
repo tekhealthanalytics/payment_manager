@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+        }
+        .container {
+            width: 350px;
+            margin: 80px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .plan-box {
+            background: #f1f5ff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        .plan-box p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #4f46e5;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #4338ca;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Payment Details</h2>
+
+    <label>Name</label>
+    <input id="name" type="text" placeholder="Enter your name">
+
+    <label>Email</label>
+    <input id="email" type="email" placeholder="Enter your email">
+
+    <label>Mobile Number</label>
+    <input id="number" type="number" placeholder="Enter mobile number">
+
+    <div class="plan-box">
+        <p><strong>Plan:</strong> {{plan_name}}</p>
+        <p><strong>Price:</strong> {{amount}}</p>
+    </div>
+    <div id="message" style="display: none;">Please Enter All Details</div>
+    <button onclick="create_order()">Pay Now </button>
+</div>
+
+<script>
+    function create_order(){
+        var name=document.getElementById("name").value.trim()
+        var email=document.getElementById("email").value.trim()
+        var number=document.getElementById("number").value
+        console.log(name,email,number ,'{{plan_name}}','{{amount}}')
+        if(name=='' || email=='' || number==''){
+            document.getElementById("message").style="color: red;font-size: 14px;"
+            return 
+        }
+            fetch("https://payment-manager-tmai.onrender.com/payment_manager/initiate_payment/", {
+            // fetch("http://127.0.0.1:8000/payment_manager/initiate_payment/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "source_website_plan" :'{{source_website_plan}}',
+                    "cust_email": email,
+                    "mobile_number":number,
+                    "cust_name":name
+                })
+            })
+                .then(response => response.text())
+                .then(html => {
+                    console.log("API Response:", html);
+
+                    // Replace entire page with Razorpay page from API
+                    document.open();
+                    document.write(html);
+                    document.close();
+                })
+                .catch(err => console.error("API ERROR:", err));
+        }
+
+</script>
+
+</body>
+</html>
